@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_drag_auto_scroll/flutter_drag_auto_scroll.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -202,7 +204,11 @@ void main() {
               scrollController: sc,
               controller: controller,
               showEdgeZones: true,
-              child: ListView(controller: sc),
+              child: ListView.builder(
+                controller: sc,
+                itemCount: 100,
+                itemBuilder: (_, i) => SizedBox(height: 50, child: Text('$i')),
+              ),
             ),
           ),
         ),
@@ -211,12 +217,36 @@ void main() {
       // Not dragging — no overlays
       expect(find.byType(DecoratedBox), findsNothing);
 
-      // Start dragging
+      // Start dragging and move pointer into the scroller area.
+      // At scroll position 0 only the bottom zone should show.
       controller.startDrag();
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: tester.getCenter(find.byType(DragAutoScroller)));
+      await gesture.moveTo(tester.getCenter(find.byType(DragAutoScroller)));
       await tester.pump();
+      expect(find.byType(DecoratedBox), findsNWidgets(1));
 
-      // Now overlays are shown (top + bottom)
+      // Scroll to the middle — both zones should show
+      sc.jumpTo(sc.position.maxScrollExtent / 2);
+      await tester.pump();
+      final center = tester.getCenter(find.byType(DragAutoScroller));
+      await gesture.moveTo(center + const Offset(1, 0));
+      await tester.pump();
       expect(find.byType(DecoratedBox), findsNWidgets(2));
+
+      // Scroll to the end — only top zone should show
+      sc.jumpTo(sc.position.maxScrollExtent);
+      await tester.pump();
+      await gesture.moveTo(center - const Offset(1, 0));
+      await tester.pump();
+      expect(find.byType(DecoratedBox), findsNWidgets(1));
+
+      // Pointer leaves — overlays disappear
+      await gesture.moveTo(const Offset(-100, -100));
+      await tester.pump();
+      expect(find.byType(DecoratedBox), findsNothing);
+
+      await gesture.removePointer();
 
       sc.dispose();
       controller.dispose();

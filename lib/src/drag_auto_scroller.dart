@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -99,9 +100,25 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
   DragAutoScrollController? _internalController;
   Ticker? _ticker;
   double _scrollSpeed = 0;
+  bool _pointerInside = false;
+  bool _globalRouteRegistered = false;
+  /// Set on pointer-up/exit; cleared on next [startDrag]. Prevents stale
+  /// hover events from reactivating scrolling between drag end and the
+  /// controller's [endDrag] call.
+  bool _dismissed = false;
 
   DragAutoScrollController get _controller =>
       widget.controller ?? (_internalController ??= DragAutoScrollController());
+
+  bool get _canScrollUp {
+    final sc = widget.scrollController;
+    return sc.hasClients && sc.position.pixels > sc.position.minScrollExtent;
+  }
+
+  bool get _canScrollDown {
+    final sc = widget.scrollController;
+    return sc.hasClients && sc.position.pixels < sc.position.maxScrollExtent;
+  }
 
   @override
   void initState() {
@@ -123,30 +140,73 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
     }
   }
 
+  void _addGlobalRoute() {
+    if (!_globalRouteRegistered) {
+      GestureBinding.instance.pointerRouter.addGlobalRoute(_globalPointerRoute);
+      _globalRouteRegistered = true;
+    }
+  }
+
+  void _removeGlobalRoute() {
+    if (_globalRouteRegistered) {
+      GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerRoute);
+      _globalRouteRegistered = false;
+    }
+  }
+
   void _onDragStateChanged() {
-    if (!_controller.isDragging) {
+    if (_controller.isDragging) {
+      _dismissed = false;
+      _addGlobalRoute();
+    } else {
+      _removeGlobalRoute();
       _stopScrolling();
+      _pointerInside = false;
+      _dismissed = true;
     }
     if (widget.showEdgeZones) {
       setState(() {});
     }
   }
 
+  void _globalPointerRoute(PointerEvent event) {
+    if (event is PointerMoveEvent || event is PointerHoverEvent) {
+      _handlePointerEvent(event.position);
+    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _onPointerLeft();
+    }
+  }
+
   void _handlePointerEvent(Offset globalPosition) {
-    if (!_controller.isDragging) return;
+    if (!_controller.isDragging || _dismissed) return;
 
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
 
-    final localY = box.globalToLocal(globalPosition).dy;
-    final height = box.size.height;
+    final local = box.globalToLocal(globalPosition);
+    final size = box.size;
+    final inside = local.dx >= 0 &&
+        local.dx <= size.width &&
+        local.dy >= 0 &&
+        local.dy <= size.height;
 
-    if (localY < widget.edgeThreshold && localY >= 0) {
-      final proximity = 1.0 - (localY / widget.edgeThreshold);
+    if (!inside) {
+      if (_pointerInside) _onPointerLeft();
+      return;
+    }
+
+    if (!_pointerInside) {
+      _pointerInside = true;
+    }
+    if (widget.showEdgeZones) setState(() {});
+
+    if (local.dy < widget.edgeThreshold) {
+      final proximity = 1.0 - (local.dy / widget.edgeThreshold);
       _scrollSpeed = -widget.maxScrollSpeed * proximity.clamp(0.0, 1.0);
       _startScrolling();
-    } else if (localY > height - widget.edgeThreshold && localY <= height) {
-      final proximity = 1.0 - ((height - localY) / widget.edgeThreshold);
+    } else if (local.dy > size.height - widget.edgeThreshold) {
+      final proximity =
+          1.0 - ((size.height - local.dy) / widget.edgeThreshold);
       _scrollSpeed = widget.maxScrollSpeed * proximity.clamp(0.0, 1.0);
       _startScrolling();
     } else {
@@ -166,6 +226,14 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
     _ticker = null;
   }
 
+  void _onPointerLeft() {
+    _stopScrolling();
+    if (_pointerInside) {
+      _pointerInside = false;
+      if (widget.showEdgeZones) setState(() {});
+    }
+  }
+
   void _onTick(Duration elapsed) {
     if (_scrollSpeed == 0) return;
 
@@ -182,6 +250,7 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
 
   @override
   void dispose() {
+    _removeGlobalRoute();
     _controller.removeListener(_onDragStateChanged);
     _stopScrolling();
     _internalController?.dispose();
@@ -190,36 +259,30 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
 
   @override
   Widget build(BuildContext context) {
-    final child = Listener(
-      onPointerMove: (event) => _handlePointerEvent(event.position),
-      onPointerUp: (_) => _stopScrolling(),
-      onPointerCancel: (_) => _stopScrolling(),
-      child: MouseRegion(
-        onHover: (event) => _handlePointerEvent(event.position),
-        onExit: (_) => _stopScrolling(),
-        child: widget.child,
-      ),
-    );
-
-    final showOverlays = widget.showEdgeZones && _controller.isDragging;
+    final child = widget.child;
 
     Widget result;
-    if (showOverlays) {
+    if (widget.showEdgeZones) {
+      final showOverlays = _controller.isDragging && _pointerInside;
+      final canScrollUp = showOverlays && _canScrollUp;
+      final canScrollDown = showOverlays && _canScrollDown;
       final color =
           widget.edgeZoneColor ?? Theme.of(context).colorScheme.primary;
       result = Stack(
         children: [
           child,
-          _EdgeZoneOverlay(
-            isTop: true,
-            height: widget.edgeThreshold,
-            color: color,
-          ),
-          _EdgeZoneOverlay(
-            isTop: false,
-            height: widget.edgeThreshold,
-            color: color,
-          ),
+          if (canScrollUp)
+            _EdgeZoneOverlay(
+              edge: _Edge.top,
+              height: widget.edgeThreshold,
+              color: color,
+            ),
+          if (canScrollDown)
+            _EdgeZoneOverlay(
+              edge: _Edge.bottom,
+              height: widget.edgeThreshold,
+              color: color,
+            ),
         ],
       );
     } else {
@@ -233,19 +296,22 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
   }
 }
 
+enum _Edge { top, bottom }
+
 class _EdgeZoneOverlay extends StatelessWidget {
   const _EdgeZoneOverlay({
-    required this.isTop,
+    required this.edge,
     required this.height,
     required this.color,
   });
 
-  final bool isTop;
+  final _Edge edge;
   final double height;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
+    final isTop = edge == _Edge.top;
     return Positioned(
       top: isTop ? 0 : null,
       bottom: isTop ? null : 0,
