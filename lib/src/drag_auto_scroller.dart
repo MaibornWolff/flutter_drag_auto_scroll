@@ -173,6 +173,7 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
     if (event is PointerMoveEvent || event is PointerHoverEvent) {
       _handlePointerEvent(event.position);
     } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _dismissed = true;
       _onPointerLeft();
     }
   }
