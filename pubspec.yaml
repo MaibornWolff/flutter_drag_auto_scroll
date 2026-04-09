@@ -1,0 +1,17 @@
+name: flutter_drag_auto_scroll
+description: Auto-scroll any scrollable widget when a Draggable enters its edge zones. Supports same-tree (InheritedWidget) and cross-tree (controller) usage.
+version: 0.1.0
+repository: https://github.com/MaibornWolff/flutter_drag_auto_scroll
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
