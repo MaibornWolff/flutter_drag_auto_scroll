@@ -45,12 +45,13 @@ class _SameTreeExampleState extends State<SameTreeExample> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          crossAxisAlignment: .start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: .start,
+            spacing: 8,
+            children: [
+              Expanded(
                 child: Text(
                   'Reorderable list using AutoScrollDraggable. The controller is '
                   'provided automatically via DragAutoScrollScope (InheritedWidget). '
@@ -59,11 +60,11 @@ class _SameTreeExampleState extends State<SameTreeExample> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
-            ),
-            Expanded(
-              child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
-            ),
-          ],
+              Expanded(
+                child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
+              ),
+            ],
+          ),
         ),
         Divider(),
         Expanded(

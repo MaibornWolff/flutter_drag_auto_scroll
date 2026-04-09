@@ -25,48 +25,45 @@ class ScrollerControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _SliderRow(
-            label: 'Edge threshold',
-            value: settings.edgeThreshold,
-            min: 20,
-            max: 200,
-            unit: 'px',
-            onChanged: (v) {
-              settings.edgeThreshold = v;
-              onChanged();
-            },
-          ),
-          _SliderRow(
-            label: 'Max scroll speed',
-            value: settings.maxScrollSpeed,
-            min: 1,
-            max: 60,
-            unit: 'px/frame',
-            onChanged: (v) {
-              settings.maxScrollSpeed = v;
-              onChanged();
-            },
-          ),
-          Row(
-            children: [
-              Text('Show edge zones', style: theme.textTheme.bodySmall),
-              const Spacer(),
-              Switch(
-                value: settings.showEdgeZones,
-                onChanged: (v) {
-                  settings.showEdgeZones = v;
-                  onChanged();
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _SliderRow(
+          label: 'Edge threshold',
+          value: settings.edgeThreshold,
+          min: 20,
+          max: 200,
+          unit: 'px',
+          onChanged: (v) {
+            settings.edgeThreshold = v;
+            onChanged();
+          },
+        ),
+        _SliderRow(
+          label: 'Max scroll speed',
+          value: settings.maxScrollSpeed,
+          min: 1,
+          max: 60,
+          unit: 'px/frame',
+          onChanged: (v) {
+            settings.maxScrollSpeed = v;
+            onChanged();
+          },
+        ),
+        Row(
+          children: [
+            Text('Show edge zones', style: theme.textTheme.bodySmall),
+            const Spacer(),
+            Switch(
+              value: settings.showEdgeZones,
+              onChanged: (v) {
+                settings.showEdgeZones = v;
+                onChanged();
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

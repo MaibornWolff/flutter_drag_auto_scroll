@@ -26,13 +26,14 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: .start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: .start,
+            spacing: 8,
+            children: [
+              Expanded(
                 child: Text(
                   'The drag source (chips on the right) and scroll target (list on '
                   'the left) are in separate widget subtrees. They share a '
@@ -41,11 +42,11 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
-            ),
-            Expanded(
-              child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
-            ),
-          ],
+              Expanded(
+                child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
+              ),
+            ],
+          ),
         ),
         const Divider(),
         Expanded(
