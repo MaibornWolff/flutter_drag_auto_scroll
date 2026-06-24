@@ -1,0 +1,26 @@
+# Internal tooling (not relevant to published package)
+CLAUDE.md
+.claude/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Mirror .gitignore so build artifacts stay out of the archive.
+# A .pubignore overrides the directory's .gitignore, so these must be repeated.
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+.flutter-plugins-dependencies
+/build/
+/coverage/
