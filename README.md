@@ -35,6 +35,8 @@ dependencies:
 
 ### Same widget tree (simplest)
 
+![same-tree reorder](https://github.com/MaibornWolff/flutter_drag_auto_scroll/releases/download/v0.1.0/playlist_demo.gif)
+
 No explicit controller needed. `DragAutoScroller` creates one internally and
 provides it to descendants via `DragAutoScrollScope`.
 
@@ -54,6 +56,8 @@ DragAutoScroller(
 ```
 
 ### Cross widget tree
+
+![cross-tree reorder](https://github.com/MaibornWolff/flutter_drag_auto_scroll/releases/download/v0.1.0/sprint_demo.gif)
 
 When the drag source and scroll target live in different subtrees, create a
 shared `DragAutoScrollController`:

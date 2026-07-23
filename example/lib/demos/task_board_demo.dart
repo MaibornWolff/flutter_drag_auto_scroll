@@ -275,13 +275,17 @@ class _MemberTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: member.color.shade100,
+                color: theme.brightness == Brightness.dark
+                    ? member.color.shade900
+                    : member.color.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '$assignedCount',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: member.color.shade900,
+                  color: theme.brightness == Brightness.dark
+                      ? member.color.shade100
+                      : member.color.shade900,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -306,13 +310,14 @@ class _MemberAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return CircleAvatar(
       radius: radius,
-      backgroundColor: member.color.shade100,
+      backgroundColor: isDark ? member.color.shade800 : member.color.shade100,
       child: Text(
         member.initials,
         style: TextStyle(
-          color: member.color.shade900,
+          color: isDark ? member.color.shade100 : member.color.shade900,
           fontWeight: FontWeight.bold,
           fontSize: radius * 0.7,
         ),
@@ -434,19 +439,24 @@ class _TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: tag.color.shade50,
+        color: isDark
+            ? tag.color.shade900.withValues(alpha: 0.5)
+            : tag.color.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: tag.color.shade200),
+        border: Border.all(
+          color: isDark ? tag.color.shade700 : tag.color.shade200,
+        ),
       ),
       child: Text(
         tag.label,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: tag.color.shade800,
+          color: isDark ? tag.color.shade200 : tag.color.shade800,
         ),
       ),
     );
