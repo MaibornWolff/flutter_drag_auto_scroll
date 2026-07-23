@@ -43,7 +43,10 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
                 ),
               ),
               Expanded(
-                child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
+                child: ScrollerControls(
+                  settings: _settings,
+                  onChanged: () => setState(() {}),
+                ),
               ),
             ],
           ),
@@ -71,10 +74,15 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
                         builder: (context, candidateData, rejectedData) {
                           final isHovered = candidateData.isNotEmpty;
                           return Container(
-                            color: isHovered ? Theme.of(context).colorScheme.primaryContainer : null,
+                            color: isHovered
+                                ? Theme.of(context).colorScheme.primaryContainer
+                                : null,
                             child: ListTile(
                               leading: chipIndex != null
-                                  ? const Icon(Icons.check_circle, color: Colors.green)
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    )
                                   : const Icon(Icons.circle_outlined),
                               title: Text('Drop Target $index'),
                               subtitle: chipIndex != null
@@ -96,7 +104,10 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
                   itemCount: 20,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       child: AutoScrollDraggable<int>(
                         controller: _controller,
                         data: index,
@@ -105,11 +116,16 @@ class _CrossTreeExampleState extends State<CrossTreeExample> {
                           borderRadius: BorderRadius.circular(16),
                           color: Theme.of(context).colorScheme.primaryContainer,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             child: Text(
                               'Chip $index',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
                                 decoration: TextDecoration.none,
                                 fontSize: 14,
                               ),

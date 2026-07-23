@@ -1,8 +1,15 @@
 # flutter_drag_auto_scroll
 
-Auto-scroll any scrollable widget when a `Draggable` enters its edge zones.
+[![pub package](https://img.shields.io/pub/v/flutter_drag_auto_scroll.svg)](https://pub.dev/packages/flutter_drag_auto_scroll)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Auto-scroll any vertically scrollable widget when a `Draggable` enters its
+top or bottom edge zones.
 
 Works on all platforms. Zero dependencies beyond Flutter.
+
+> **Note:** Only vertical scrolling is supported. Horizontal scrollables are
+> not yet handled — contributions welcome.
 
 ## Features
 
@@ -106,6 +113,16 @@ Draggable<int>(
 
 Regular pointer interactions (press-and-hold, scrolling, mouse hover) are
 ignored because the controller is only active during `AutoScrollDraggable` drags.
+
+## Example
+
+The [example app](example/) demonstrates both modes: a same-tree list where
+items are reordered by dragging, and a cross-tree layout where items are
+dragged from a side panel into a scrolling list. Run it with:
+
+```bash
+cd example && flutter run
+```
 
 ## License
 

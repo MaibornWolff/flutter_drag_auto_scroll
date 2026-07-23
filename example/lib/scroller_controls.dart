@@ -95,12 +95,7 @@ class _SliderRow extends StatelessWidget {
           child: Text(label, style: theme.textTheme.bodySmall),
         ),
         Expanded(
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            onChanged: onChanged,
-          ),
+          child: Slider(value: value, min: min, max: max, onChanged: onChanged),
         ),
         SizedBox(
           width: 70,

@@ -61,7 +61,10 @@ class _SameTreeExampleState extends State<SameTreeExample> {
                 ),
               ),
               Expanded(
-                child: ScrollerControls(settings: _settings, onChanged: () => setState(() {})),
+                child: ScrollerControls(
+                  settings: _settings,
+                  onChanged: () => setState(() {}),
+                ),
               ),
             ],
           ),
@@ -79,7 +82,12 @@ class _SameTreeExampleState extends State<SameTreeExample> {
               itemBuilder: (context, index) {
                 final item = _items[index];
                 final color = _colors[item % _colors.length];
-                return _ReorderableItem(index: index, item: item, color: color, onReorder: _onReorder);
+                return _ReorderableItem(
+                  index: index,
+                  item: item,
+                  color: color,
+                  onReorder: _onReorder,
+                );
               },
             ),
           ),
@@ -90,7 +98,12 @@ class _SameTreeExampleState extends State<SameTreeExample> {
 }
 
 class _ReorderableItem extends StatefulWidget {
-  const _ReorderableItem({required this.index, required this.item, required this.color, required this.onReorder});
+  const _ReorderableItem({
+    required this.index,
+    required this.item,
+    required this.color,
+    required this.onReorder,
+  });
 
   final int index;
   final int item;
@@ -144,7 +157,10 @@ class _ReorderableItemState extends State<_ReorderableItem> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _DropIndicator(visible: _dropAbove, color: theme.colorScheme.primary),
+            _DropIndicator(
+              visible: _dropAbove,
+              color: theme.colorScheme.primary,
+            ),
             AutoScrollDraggable<int>(
               data: widget.index,
               feedback: Material(
@@ -152,7 +168,10 @@ class _ReorderableItemState extends State<_ReorderableItem> {
                 borderRadius: BorderRadius.circular(8),
                 color: widget.color.shade100,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   child: Text(
                     'Item ${widget.item}',
                     style: TextStyle(
@@ -170,7 +189,10 @@ class _ReorderableItemState extends State<_ReorderableItem> {
               ),
               child: _ItemTile(item: widget.item, color: widget.color),
             ),
-            _DropIndicator(visible: _dropBelow, color: theme.colorScheme.primary),
+            _DropIndicator(
+              visible: _dropBelow,
+              color: theme.colorScheme.primary,
+            ),
           ],
         );
       },
@@ -187,7 +209,11 @@ class _DropIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
-    return Container(height: 3, margin: const EdgeInsets.symmetric(horizontal: 16), color: color);
+    return Container(
+      height: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      color: color,
+    );
   }
 }
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'same_tree_example.dart';
-import 'cross_tree_example.dart';
+import 'demos/playlist_demo.dart';
+import 'demos/task_board_demo.dart';
+import 'playground.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -12,31 +13,56 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'flutter_drag_auto_scroll',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-      home: const ExampleTabs(),
+      home: const HomeShell(),
     );
   }
 }
 
-class ExampleTabs extends StatelessWidget {
-  const ExampleTabs({super.key});
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
+
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
+  int _index = 0;
+
+  static const _pages = [PlaylistDemo(), TaskBoardDemo(), Playground()];
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('flutter_drag_auto_scroll'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Same Tree'),
-              Tab(text: 'Cross Tree'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [const SameTreeExample(), const CrossTreeExample()],
+    return Scaffold(
+      body: SafeArea(
+        child: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              labelType: NavigationRailLabelType.all,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.queue_music_outlined),
+                  selectedIcon: Icon(Icons.queue_music),
+                  label: Text('Playlist'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.space_dashboard_outlined),
+                  selectedIcon: Icon(Icons.space_dashboard),
+                  label: Text('Sprint'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.tune_outlined),
+                  selectedIcon: Icon(Icons.tune),
+                  label: Text('Playground'),
+                ),
+              ],
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(child: _pages[_index]),
+          ],
         ),
       ),
     );
