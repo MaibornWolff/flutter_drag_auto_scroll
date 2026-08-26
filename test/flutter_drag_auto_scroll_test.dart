@@ -221,7 +221,8 @@ void main() {
       // At scroll position 0 only the bottom zone should show.
       controller.startDrag();
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      await gesture.addPointer(location: tester.getCenter(find.byType(DragAutoScroller)));
+      await gesture.addPointer(
+          location: tester.getCenter(find.byType(DragAutoScroller)));
       await gesture.moveTo(tester.getCenter(find.byType(DragAutoScroller)));
       await tester.pump();
       expect(find.byType(DecoratedBox), findsNWidgets(1));

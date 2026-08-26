@@ -1,6 +1,8 @@
 # Internal tooling (not relevant to published package)
 CLAUDE.md
 .claude/
+TODO.md
+CODE_REVIEW.md
 .idea/
 *.iml
 *.ipr

@@ -102,6 +102,7 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
   double _scrollSpeed = 0;
   bool _pointerInside = false;
   bool _globalRouteRegistered = false;
+
   /// Set on pointer-up/exit; cleared on next [startDrag]. Prevents stale
   /// hover events from reactivating scrolling between drag end and the
   /// controller's [endDrag] call.
@@ -149,7 +150,8 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
 
   void _removeGlobalRoute() {
     if (_globalRouteRegistered) {
-      GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalPointerRoute);
+      GestureBinding.instance.pointerRouter
+          .removeGlobalRoute(_globalPointerRoute);
       _globalRouteRegistered = false;
     }
   }
@@ -206,8 +208,7 @@ class _DragAutoScrollerState extends State<DragAutoScroller>
       _scrollSpeed = -widget.maxScrollSpeed * proximity.clamp(0.0, 1.0);
       _startScrolling();
     } else if (local.dy > size.height - widget.edgeThreshold) {
-      final proximity =
-          1.0 - ((size.height - local.dy) / widget.edgeThreshold);
+      final proximity = 1.0 - ((size.height - local.dy) / widget.edgeThreshold);
       _scrollSpeed = widget.maxScrollSpeed * proximity.clamp(0.0, 1.0);
       _startScrolling();
     } else {
