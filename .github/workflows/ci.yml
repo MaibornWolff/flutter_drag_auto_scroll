@@ -105,18 +105,21 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      # Deliberately no `flutter pub get` here. The Flutter tool rewrites
+      # analysis_options.yaml (injecting `analyzer: exclude:`) and re-resolves
+      # example/pubspec.lock during resolution, and `pub publish` refuses to
+      # publish from a dirty git tree. `dart pub` performs the same validation
+      # without mutating tracked files; flutter-action exports FLUTTER_ROOT, so
+      # the `sdk: flutter` dependencies still resolve.
 
-      # `pub publish` refuses a dirty git tree, so surface what (if anything)
-      # the toolchain rewrote during dependency resolution.
+      # Guards the above: if a future SDK dirties the tree anyway, this prints
+      # exactly what changed instead of leaving a bare exit code 65.
       - name: Show working tree state
         run: |
           git status --porcelain
-          git diff --stat
           git diff
 
       # Catches pubspec, LICENSE, CHANGELOG and archive-size problems before
       # they reach pub.dev, where a published version can never be replaced.
       - name: Validate package
-        run: flutter pub publish --dry-run
+        run: dart pub publish --dry-run
