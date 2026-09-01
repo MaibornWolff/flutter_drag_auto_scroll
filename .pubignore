@@ -1,6 +1,7 @@
 # Internal tooling (not relevant to published package)
 CLAUDE.md
 .claude/
+.github/
 TODO.md
 CODE_REVIEW.md
 .idea/

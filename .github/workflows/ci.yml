@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A new push to the same branch supersedes any run still in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Stable only, deliberately: `dart format` switched to the tall style in Dart
+  # 3.7, so the floor SDK would reformat every file, and flutter_lints 5 (the
+  # version that resolves there) enforces a different rule set than 6. Style is
+  # judged by one SDK; compatibility is what the floor job below checks.
+  analyze:
+    name: Format & analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          flutter pub get
+          flutter pub get --directory example
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+  test:
+    name: Test (Flutter ${{ matrix.label }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # An empty flutter-version means "whatever stable is today".
+          - label: stable
+            flutter-version: ''
+          # The oldest SDK pubspec.yaml promises to support. Proves the
+          # `flutter: ">=3.27.0"` claim instead of just asserting it.
+          - label: '3.27.0 (floor)'
+            flutter-version: '3.27.0'
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter-version }}
+          cache: true
+
+      # `flutter pub get` at the package root also resolves ./example, and the
+      # example declares sdk: ^3.10.0, so on the floor SDK it fails before the
+      # package itself is ever tested. Only the package carries the
+      # compatibility promise, so drop the example from this throwaway checkout.
+      - name: Remove example (requires a newer SDK than the floor)
+        if: matrix.flutter-version != ''
+        run: rm -rf example
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run package tests
+        run: flutter test --coverage
+
+      - name: Run example tests
+        if: matrix.flutter-version == ''
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter test
+
+      - name: Upload coverage
+        if: matrix.flutter-version == ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: error
+
+  package:
+    name: Publish dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Deliberately no `flutter pub get` here. The Flutter tool rewrites
+      # analysis_options.yaml (injecting `analyzer: exclude:`) and re-resolves
+      # example/pubspec.lock during resolution, and `pub publish` refuses to
+      # publish from a dirty git tree. `dart pub` performs the same validation
+      # without mutating tracked files; flutter-action exports FLUTTER_ROOT, so
+      # the `sdk: flutter` dependencies still resolve.
+
+      # Guards the above: if a future SDK dirties the tree anyway, this prints
+      # exactly what changed instead of leaving a bare exit code 65.
+      - name: Show working tree state
+        run: |
+          git status --porcelain
+          git diff
+
+      # Catches pubspec, LICENSE, CHANGELOG and archive-size problems before
+      # they reach pub.dev, where a published version can never be replaced.
+      - name: Validate package
+        run: dart pub publish --dry-run
