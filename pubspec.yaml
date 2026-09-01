@@ -10,6 +10,12 @@ topics:
   - draggable
   - ui
 
+screenshots:
+  - description: 'Reordering a playlist by dragging, with the list auto-scrolling at the edge zones.'
+    path: example/screenshots/playlist_demo.webp
+  - description: 'Assigning team members to backlog tasks across two widget subtrees sharing one controller.'
+    path: example/screenshots/sprint_demo.webp
+
 environment:
   sdk: ^3.6.0
   flutter: ">=3.27.0"
