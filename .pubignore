@@ -1,10 +1,5 @@
 # Internal tooling (not relevant to published package)
 CLAUDE.md
-.claude/
-.github/
-TODO.md
-CODE_REVIEW.md
-.idea/
 *.iml
 *.ipr
 *.iws
@@ -19,19 +14,15 @@ example/demo_gifs/
 
 # Mirror .gitignore so build artifacts stay out of the archive.
 # A .pubignore overrides the directory's .gitignore, so these must be repeated.
+# Only this directory's .gitignore is overridden — example/**/.gitignore still applies.
+# Hidden files and directories (dot-prefixed) are excluded by pub automatically,
+# so .dart_tool/, .idea/, .github/, .DS_Store etc. need no entries here.
 *.class
 *.log
 *.pyc
 *.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
 migrate_working_dir/
 /pubspec.lock
 **/doc/api/
-.dart_tool/
-.flutter-plugins-dependencies
 /build/
 /coverage/
