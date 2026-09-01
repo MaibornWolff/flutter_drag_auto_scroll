@@ -27,4 +27,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  # Range rather than ^6.0.0: flutter_lints 6 requires Dart ^3.8.0, which would
+  # make the Dart ^3.6.0 floor declared above impossible to resolve or test.
+  flutter_lints: ">=5.0.0 <7.0.0"

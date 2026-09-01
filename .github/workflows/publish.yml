@@ -1,0 +1,42 @@
+name: Publish
+
+# Publishing is driven by version tags: `git tag -a v1.2.3 && git push origin v1.2.3`.
+# The tag must point at a commit whose pubspec `version:` matches the tag.
+#
+# Requires automated publishing to be enabled once, by hand, at
+# https://pub.dev/packages/flutter_drag_auto_scroll/admin
+# (Automated publishing -> Enable publishing from GitHub Actions, repository
+# MaibornWolff/flutter_drag_auto_scroll, tag pattern v{{version}}).
+# Until then this workflow will fail at the publish step -- the very first
+# release has to be pushed manually with `flutter pub publish`.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    name: Publish to pub.dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Mints the OIDC token that pub.dev exchanges for a short-lived
+      # publishing credential, so no long-lived secret is stored in the repo.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # Performs the OIDC handshake and writes the pub credentials that the
+      # publish step below picks up. Must run before flutter-action.
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Publish
+        run: flutter pub publish --force

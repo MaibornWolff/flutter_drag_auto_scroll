@@ -1,6 +1,7 @@
 # flutter_drag_auto_scroll
 
 [![pub package](https://img.shields.io/pub/v/flutter_drag_auto_scroll.svg)](https://pub.dev/packages/flutter_drag_auto_scroll)
+[![CI](https://github.com/MaibornWolff/flutter_drag_auto_scroll/actions/workflows/ci.yml/badge.svg)](https://github.com/MaibornWolff/flutter_drag_auto_scroll/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Auto-scroll any vertically scrollable widget when a `Draggable` enters its
