@@ -8,6 +8,11 @@ CODE_REVIEW.md
 *.ipr
 *.iws
 
+# README demo gifs (~8 MB). Referenced by absolute GitHub release-asset URLs,
+# so pub.dev renders them from GitHub — shipping them would be dead weight.
+# Note: pubspec `screenshots:` are served from the archive and must NOT be listed here.
+example/demo_gifs/
+
 # Mirror .gitignore so build artifacts stay out of the archive.
 # A .pubignore overrides the directory's .gitignore, so these must be repeated.
 *.class

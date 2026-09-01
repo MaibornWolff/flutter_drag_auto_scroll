@@ -312,6 +312,59 @@ void main() {
       controller.dispose();
     });
 
+    testWidgets('calls endDrag when the draggable unmounts mid-drag',
+        (tester) async {
+      final controller = DragAutoScrollController();
+      late StateSetter setOuterState;
+      var showDraggable = true;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setOuterState = setState;
+                return showDraggable
+                    ? AutoScrollDraggable<int>(
+                        controller: controller,
+                        data: 1,
+                        feedback: const SizedBox(width: 50, height: 50),
+                        // Must be hit-testable, or the pointer never reaches
+                        // the Draggable and no drag starts.
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          color: const Color(0xFF00FF00),
+                        ),
+                      )
+                    : const SizedBox(width: 100, height: 100);
+              },
+            ),
+          ),
+        ),
+      );
+
+      final center = tester.getCenter(find.byType(AutoScrollDraggable<int>));
+      final gesture = await tester.startGesture(center);
+      await tester.pump();
+      await gesture.moveBy(const Offset(0, 50));
+      await tester.pump();
+
+      expect(controller.isDragging, isTrue);
+
+      // Remove the draggable before the pointer is released — the
+      // drag-to-delete/reorder case, where Draggable skips onDragEnd.
+      setOuterState(() => showDraggable = false);
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pump();
+
+      expect(controller.isDragging, isFalse);
+
+      controller.dispose();
+    });
+
     testWidgets('chains user onDragStarted callback', (tester) async {
       var userCallbackCalled = false;
 

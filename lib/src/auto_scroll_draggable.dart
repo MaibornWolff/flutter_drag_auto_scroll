@@ -134,12 +134,23 @@ class AutoScrollDraggable<T extends Object> extends StatelessWidget {
         onDragStarted?.call();
       },
       onDragUpdate: onDragUpdate,
-      onDraggableCanceled: onDraggableCanceled,
+      // [Draggable] skips onDragEnd when the draggable is no longer mounted,
+      // which happens routinely in drag-to-reorder/delete lists. onDragCompleted
+      // and onDraggableCanceled are not mounted-guarded and exactly one of them
+      // always fires, so endDrag() is wired into all three. endDrag() is
+      // idempotent, so the redundant calls in the mounted case are no-ops.
+      onDraggableCanceled: (velocity, offset) {
+        effectiveController?.endDrag();
+        onDraggableCanceled?.call(velocity, offset);
+      },
       onDragEnd: (details) {
         effectiveController?.endDrag();
         onDragEnd?.call(details);
       },
-      onDragCompleted: onDragCompleted,
+      onDragCompleted: () {
+        effectiveController?.endDrag();
+        onDragCompleted?.call();
+      },
       child: child,
     );
   }
