@@ -65,14 +65,20 @@ jobs:
           flutter-version: ${{ matrix.flutter-version }}
           cache: true
 
+      # `flutter pub get` at the package root also resolves ./example, and the
+      # example declares sdk: ^3.10.0, so on the floor SDK it fails before the
+      # package itself is ever tested. Only the package carries the
+      # compatibility promise, so drop the example from this throwaway checkout.
+      - name: Remove example (requires a newer SDK than the floor)
+        if: matrix.flutter-version != ''
+        run: rm -rf example
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Run package tests
         run: flutter test --coverage
 
-      # The example app declares sdk: ^3.10.0, so it cannot resolve on the
-      # floor SDK. Only the package itself carries the compatibility promise.
       - name: Run example tests
         if: matrix.flutter-version == ''
         working-directory: example
@@ -101,6 +107,14 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      # `pub publish` refuses a dirty git tree, so surface what (if anything)
+      # the toolchain rewrote during dependency resolution.
+      - name: Show working tree state
+        run: |
+          git status --porcelain
+          git diff --stat
+          git diff
 
       # Catches pubspec, LICENSE, CHANGELOG and archive-size problems before
       # they reach pub.dev, where a published version can never be replaced.
