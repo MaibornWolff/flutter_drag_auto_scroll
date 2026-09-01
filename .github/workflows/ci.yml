@@ -54,7 +54,12 @@ jobs:
             flutter-version: ''
           # The oldest SDK pubspec.yaml promises to support. Proves the
           # `flutter: ">=3.27.0"` claim instead of just asserting it.
-          - label: '3.27.0 (floor)'
+          # The label deliberately omits the version. It becomes this job's
+          # name, which the "protect main" ruleset lists as a required status
+          # check, and a required check that gets renamed never reports at all
+          # rather than failing — so merges would block with no visible cause.
+          # Bump flutter-version below; the check name stays put.
+          - label: floor
             flutter-version: '3.27.0'
     steps:
       - uses: actions/checkout@v7
