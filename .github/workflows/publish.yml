@@ -7,8 +7,10 @@ name: Publish
 # https://pub.dev/packages/flutter_drag_auto_scroll/admin
 # (Automated publishing -> Enable publishing from GitHub Actions, repository
 # MaibornWolff/flutter_drag_auto_scroll, tag pattern v{{version}}).
-# Until then this workflow will fail at the publish step -- the very first
-# release has to be pushed manually with `flutter pub publish`.
+# Until then this workflow fails at the publish step with
+# `Only users are allowed to upload new packages.` -- pub.dev will not accept
+# an OIDC upload for a package that does not exist yet, so the very first
+# release has to be pushed by hand with `flutter pub publish`.
 on:
   push:
     tags:
@@ -35,8 +37,22 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      # Deliberately no `flutter pub get` here, matching the `package` job in
+      # ci.yml. The Flutter tool rewrites analysis_options.yaml (injecting
+      # `analyzer: exclude:`) and re-resolves example/pubspec.lock during
+      # resolution, which left every release publishing from a tree `pub`
+      # reports as dirty ("2 checked-in files are modified in git"). `dart pub`
+      # publishes without mutating tracked files; flutter-action exports
+      # FLUTTER_ROOT, so the `sdk: flutter` dependencies still resolve.
 
+      # Guards the above: if a future SDK dirties the tree anyway, this prints
+      # exactly what changed rather than burying it in the publish output.
+      - name: Show working tree state
+        run: |
+          git status --porcelain
+          git diff
+
+      # --force skips the interactive confirmation, not the validation; the
+      # archive is still checked exactly as `--dry-run` checks it in ci.yml.
       - name: Publish
-        run: flutter pub publish --force
+        run: dart pub publish --force
